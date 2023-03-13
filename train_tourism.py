@@ -184,7 +184,7 @@ def generate_hmatrix():
             ans1[n.idx, n.idx] = 1
         c_idx = [x.idx for x in n.children]
         ans1[n.idx, c_idx] = 1.0
-    ans2 = np.zeros(data_obj.data.shape[0], data_obj.data.shape[0])
+    ans2 = np.zeros((data_obj.data.shape[0], data_obj.data.shape[0]))
     for i, n in enumerate(data_obj.nodes2):
         if len(n.children) == 0:
             ans2[n.idx, n.idx] = 1
