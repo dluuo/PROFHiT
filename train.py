@@ -39,10 +39,12 @@ th.cuda.manual_seed(SEED)
 
 
 if DEVICE == "cuda":
+    print("th.cuda.is_available(): ", th.cuda.is_available())
     device = th.device("cuda") if th.cuda.is_available() else th.device("cpu")
 else:
     device = th.device("cpu")
 
+print("Using device: ", device)
 
 if DATASET == "LABOUR":
     data_obj = LabourHierarchyData()
