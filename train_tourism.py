@@ -178,7 +178,7 @@ def jsd_norm(mu1, mu2, var1, var2):
 
 
 def generate_hmatrix():
-    ans1 = np.zeros(data_obj.data.shape[0], data_obj.data.shape[0])
+    ans1 = np.zeros((data_obj.data.shape[0], data_obj.data.shape[0]))
     for i, n in enumerate(data_obj.nodes1):
         if len(n.children) == 0:
             ans1[n.idx, n.idx] = 1
