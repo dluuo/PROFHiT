@@ -201,7 +201,7 @@ def jsd_loss(mu, logstd, hmatrix, train_means, train_std):
     lhs_var = (((th.exp(2.0 * logstd) * (train_std ** 2)) * hmatrix).sum(1)) / (
         train_std ** 2
     )
-    ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var), nan=0.0, posinf=100000000)
+    ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var), nan=0.0, posinf=100)
     print(ans)
     return ans.mean()
 
