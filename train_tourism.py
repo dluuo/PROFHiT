@@ -381,7 +381,7 @@ crps = ps.crps_ensemble(ground_truth, np.moveaxis(preds, [1, 2, 0], [0, 1, 2])).
 print(f"CRPS: {crps}")
 
 
-reshaped_preds = preds.permute(1, 2, 0) #reshape into n_series, horizon, quantiles
+reshaped_preds = np.transpose(preds, (1, 2, 0)) #reshape into n_series, horizon, quantiles
 crps_all_levels = get_hierarchical_crps(Y=ground_truth, Y_hat=reshaped_preds, q_to_pred=QUANTILES)
 msse_all_levels = get_hierarchical_msse(Y=ground_truth, Y_hat=reshaped_preds, Y_train=train_data_raw)
 
