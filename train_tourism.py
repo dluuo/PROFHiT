@@ -194,19 +194,14 @@ def generate_hmatrix():
 
 
 def jsd_loss(mu, logstd, hmatrix, train_means, train_std):
-    eps = 0.0001
-#     print("\n\n")
-#     print(f"IN JSD_loss: mu {mu}\n, logstd {logstd}\n, hmatrix {hmatrix}\n, train_means {train_means}\n, train_std {train_std}\n")
+#     eps = 0.0001
     lhs_mu = (((mu * train_std + train_means) * hmatrix).sum(1) - train_means) / (
         train_std
     )
     lhs_var = (((th.exp(2.0 * logstd) * (train_std ** 2)) * hmatrix).sum(1)) / (
         train_std ** 2
     )
-#     print("jsd_norm: ",jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var))
-    ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var+eps))
-#     print(f"IN JSD_loss: lhs_mu {lhs_mu}\n, lhs_var {lhs_var}\n, ans {ans}\n")
-#     print("\n\n")
+    ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var), posinf=100000)
     return ans.mean()
 
 
