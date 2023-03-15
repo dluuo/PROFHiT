@@ -194,6 +194,8 @@ def generate_hmatrix():
 
 
 def jsd_loss(mu, logstd, hmatrix, train_means, train_std):
+    print("\n\n")
+    print(f"IN JSD_loss: mu {mu}, logstd {logstd}, hmatrix {hmatrix}, train_means {train_means}, train_std {train_std}")
     lhs_mu = (((mu * train_std + train_means) * hmatrix).sum(1) - train_means) / (
         train_std
     )
@@ -201,6 +203,8 @@ def jsd_loss(mu, logstd, hmatrix, train_means, train_std):
         train_std ** 2
     )
     ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var))
+    print(f"IN JSD_loss: lhs_mu {lhs_mu}, lhs_var {lhs_var}, ans {ans}")
+    print("\n\n")
     return ans.mean()
 
 
