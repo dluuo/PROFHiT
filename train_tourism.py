@@ -16,6 +16,48 @@ from models.utils import float_tensor, long_tensor
 from tqdm import tqdm
 import properscoring as ps
 
+
+
+#------ Additional--------
+from hierarchicalforecast.evaluation import scaled_crps, msse
+
+HIER_IDXS = [range(555),
+             range(0,1), range(1,1+7), range(8,8+27), range(35,111),
+             range(111, 111+4), range(115, 115+28),
+             range(143, 143+108), range(251, 251+304)]
+LEVEL = np.arange(0, 100, 2)
+qs = [[50-lv/2, 50+lv/2] for lv in LEVEL]
+QUANTILES = np.sort(np.concatenate(qs)/100)
+
+def get_hierarchical_crps(Y, Y_hat, q_to_pred):
+#     hier_idxs   = data['hier_idxs']
+    crps_list = []
+    for i, idxs in enumerate(HIER_IDXS):
+        # Get the series specific to the hierarchical level
+        y     = Y[idxs, :]
+        y_hat = Y_hat[idxs, :, :]
+
+        crps  = scaled_crps(y=y, y_hat=y_hat, quantiles=q_to_pred)
+        crps_list.append(crps)
+
+    return crps_list
+
+def get_hierarchical_msse(Y, Y_hat, Y_train):
+#     hier_idxs   = data['hier_idxs']
+    msse_list = []
+    for i, idxs in enumerate(HIER_IDXS):
+        # Get the series specific to the hierarchical level
+        y     = Y[idxs, :]
+        y_hat = Y_hat[idxs, :]
+        y_train = Y_train[idxs, :]
+
+        msse_np  = msse(y=y, y_hat=y_hat, y_train=y_train)
+        msse_list.append(msse_np)
+
+    return msse_list
+#-------------------------
+
+
 SEED = 42
 DEVICE = "cuda"
 DATASET = "TOURISM"
@@ -337,6 +379,11 @@ rmse = np.sqrt(np.mean((ground_truth - mean_preds) ** 2))
 print(f"RMSE: {rmse}")
 crps = ps.crps_ensemble(ground_truth, np.moveaxis(preds, [1, 2, 0], [0, 1, 2])).mean()
 print(f"CRPS: {crps}")
-print("mean_preds.shape: ", mean_preds.shape)
-print("Preds.shape: ",preds.shape)
-print("ground_truth.shape: ", ground_truth.shape)
+
+
+reshaped_preds = preds.permute(1, 2, 0) #reshape into n_series, horizon, quantiles
+crps_all_levels = get_hierarchical_crps(Y=ground_truth, Y_hat=reshaped_preds, q_to_pred=QUANTILES)
+msse_all_levels = get_hierarchical_msse(Y=ground_truth, Y_hat=reshaped_preds, Y_train=train_data_raw)
+
+print(f"CRPS ALL LEVELS: {crps_all_levels}")
+print(f"MSSE ALL LEVELS: {msse_all_levels}")
