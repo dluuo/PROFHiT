@@ -28,7 +28,7 @@ PRE_TRAIN_EPOCHS = 10
 FRAC_VAL = 0.1
 C = 5.0
 BATCH_SIZE = 10
-TRAIN_LR = 0.001
+TRAIN_LR = 0.005
 LAMBDA = 0.1
 TRAIN_EPOCHS = 100
 EVAL_SAMPLES = 100
@@ -194,15 +194,14 @@ def generate_hmatrix():
 
 
 def jsd_loss(mu, logstd, hmatrix, train_means, train_std):
-#     eps = 0.0001
+    eps = 0.0001
     lhs_mu = (((mu * train_std + train_means) * hmatrix).sum(1) - train_means) / (
         train_std
     )
     lhs_var = (((th.exp(2.0 * logstd) * (train_std ** 2)) * hmatrix).sum(1)) / (
         train_std ** 2
     )
-    ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var), nan=0.0, posinf=100)
-    print(ans)
+    ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var+eps))
     return ans.mean()
 
 
