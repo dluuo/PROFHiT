@@ -195,15 +195,16 @@ def generate_hmatrix():
 
 def jsd_loss(mu, logstd, hmatrix, train_means, train_std):
     print("\n\n")
-    print(f"IN JSD_loss: mu {mu}, logstd {logstd}, hmatrix {hmatrix}, train_means {train_means}, train_std {train_std}")
+    print(f"IN JSD_loss: mu {mu}\n, logstd {logstd}\n, hmatrix {hmatrix}\n, train_means {train_means}\n, train_std {train_std}\n")
     lhs_mu = (((mu * train_std + train_means) * hmatrix).sum(1) - train_means) / (
         train_std
     )
     lhs_var = (((th.exp(2.0 * logstd) * (train_std ** 2)) * hmatrix).sum(1)) / (
         train_std ** 2
     )
+    print("jsd_norm: ",jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var))
     ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var))
-    print(f"IN JSD_loss: lhs_mu {lhs_mu}, lhs_var {lhs_var}, ans {ans}")
+    print(f"IN JSD_loss: lhs_mu {lhs_mu}\n, lhs_var {lhs_var}\n, ans {ans}\n")
     print("\n\n")
     return ans.mean()
 
@@ -261,6 +262,7 @@ def train_epoch():
         losses.append(loss.detach().cpu().item())
         print(f"Loss1: {loss1.detach().cpu().item()}")
         print(f"Loss2: {loss2.detach().cpu().item()}")
+        break
         means.append(mean_sample.detach().cpu().numpy())
         stds.append(logstd_sample.detach().cpu().numpy())
         gts.append(y.detach().cpu().numpy())
