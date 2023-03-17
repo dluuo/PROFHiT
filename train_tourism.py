@@ -258,9 +258,6 @@ def train_epoch():
     opt.zero_grad()
     ref_x = float_tensor(train_data[:, :, None])
     hmatrix1, hmatrix2 = generate_hmatrix()
-    print(type(hmatrix1))
-    for x in hmatrix1:
-        print(x)
     th_means = float_tensor(train_means)
     th_std = float_tensor(train_std)
     meta_x = long_tensor(np.arange(ref_x.shape[0]))
