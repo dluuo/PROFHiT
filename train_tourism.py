@@ -66,13 +66,15 @@ TRAIN_UPTO = 228 - 12
 BACKUP_TIME = 30
 PRE_BATCH_SIZE = 10
 PRE_TRAIN_LR = 0.001
-PRE_TRAIN_EPOCHS = 10
+# PRE_TRAIN_EPOCHS = 10
+PRE_TRAIN_EPOCHS = 2
 FRAC_VAL = 0.1
 C = 5.0
 BATCH_SIZE = 10
 TRAIN_LR = 0.001
 LAMBDA = 0.0
-TRAIN_EPOCHS = 100
+# TRAIN_EPOCHS = 100
+TRAIN_EPOCHS = 2
 EVAL_SAMPLES = 100
 
 np.random.seed(SEED)
@@ -256,6 +258,9 @@ def train_epoch():
     opt.zero_grad()
     ref_x = float_tensor(train_data[:, :, None])
     hmatrix1, hmatrix2 = generate_hmatrix()
+    print(type(hmatrix1))
+    for x in hmatrix1:
+        print(x)
     th_means = float_tensor(train_means)
     th_std = float_tensor(train_std)
     meta_x = long_tensor(np.arange(ref_x.shape[0]))
