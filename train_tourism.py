@@ -73,8 +73,8 @@ C = 5.0
 BATCH_SIZE = 10
 TRAIN_LR = 0.001
 LAMBDA = 0.0
-TRAIN_EPOCHS = 100
-# TRAIN_EPOCHS = 3
+# TRAIN_EPOCHS = 100
+# TRAIN_EPOCHS = 25
 EVAL_SAMPLES = 100
 
 np.random.seed(SEED)
@@ -102,8 +102,6 @@ train_data = (train_data_raw - train_means[:, None]) / train_std[:, None]
 
 print("type(full_data): ", type(full_data))
 print("full_data.shape: ", full_data.shape)
-
-import pdb; pdb.set_trace()
 
 dataset_raw = lag_dataset(train_data, BACKUP_TIME)
 
