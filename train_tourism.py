@@ -103,6 +103,8 @@ train_data = (train_data_raw - train_means[:, None]) / train_std[:, None]
 print("type(full_data): ", type(full_data))
 print("full_data.shape: ", full_data.shape)
 
+import pdb; pdb.set_trace()
+
 dataset_raw = lag_dataset(train_data, BACKUP_TIME)
 
 
