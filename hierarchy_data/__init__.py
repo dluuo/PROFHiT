@@ -46,8 +46,6 @@ class TourismHierarchyData(object):
         self.data_file = data_file
         self.data, self.idx_dict1, self.nodes1 = self.get_hierarchy1()
         self.data, self.idx_dict2, self.nodes2 = self.get_hierarchy2()
-        print(self.idx_dict1)
-        print(self.idx_dict2)
 
     def get_hierarchy1(self):
         df = pd.read_csv(self.data_file)
