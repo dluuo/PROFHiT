@@ -20,10 +20,7 @@ import properscoring as ps
 #------ Additional--------
 from hierarchicalforecast.evaluation import scaled_crps, msse
 
-HIER_IDXS = [range(555),
-             range(0,1), range(1,1+7), range(8,8+27), range(35,111),
-             range(111, 111+4), range(115, 115+28),
-             range(143, 143+108), range(251, 251+304)]
+HIER_IDXS = [range(57), range(0,1), range(1,1+8), range(9,9+16), range(25,25+32)]
 LEVEL = np.arange(0, 100, 2)
 qs = [[50-lv/2, 50+lv/2] for lv in LEVEL]
 QUANTILES = np.sort(np.concatenate(qs)/100)
