@@ -58,8 +58,8 @@ def get_hierarchical_msse(Y, Y_hat, Y_train):
 SEED = 42
 DEVICE = "cuda"
 DATASET = "LABOUR"
-AHEAD = 8
-TRAIN_UPTO = 514 - 8
+AHEAD = 12
+TRAIN_UPTO = 503 - 12
 BACKUP_TIME = 50
 PRE_BATCH_SIZE = 10
 PRE_TRAIN_LR = 0.001
