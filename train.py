@@ -16,6 +16,48 @@ from models.utils import float_tensor, long_tensor
 from tqdm import tqdm
 import properscoring as ps
 
+
+#------ Additional--------
+from hierarchicalforecast.evaluation import scaled_crps, msse
+
+HIER_IDXS = [range(555),
+             range(0,1), range(1,1+7), range(8,8+27), range(35,111),
+             range(111, 111+4), range(115, 115+28),
+             range(143, 143+108), range(251, 251+304)]
+LEVEL = np.arange(0, 100, 2)
+qs = [[50-lv/2, 50+lv/2] for lv in LEVEL]
+QUANTILES = np.sort(np.concatenate(qs)/100)
+
+def get_hierarchical_crps(Y, Y_hat, q_to_pred):
+#     hier_idxs   = data['hier_idxs']
+    crps_list = []
+    for i, idxs in enumerate(HIER_IDXS):
+        # Get the series specific to the hierarchical level
+        y     = Y[idxs, :]
+        y_hat = Y_hat[idxs, :, :]
+
+        crps  = scaled_crps(y=y, y_hat=y_hat, quantiles=q_to_pred)
+        crps_list.append(crps)
+
+    return crps_list
+
+def get_hierarchical_msse(Y, Y_hat, Y_train):
+#     hier_idxs   = data['hier_idxs']
+    msse_list = []
+    for i, idxs in enumerate(HIER_IDXS):
+        # Get the series specific to the hierarchical level
+        y     = Y[idxs, :]
+        y_hat = Y_hat[idxs, :]
+        y_train = Y_train[idxs, :]
+
+        msse_np  = msse(y=y, y_hat=y_hat, y_train=y_train)
+        msse_list.append(msse_np)
+
+    return msse_list
+#-------------------------
+
+
+
 SEED = 42
 DEVICE = "cuda"
 DATASET = "LABOUR"
@@ -24,13 +66,15 @@ TRAIN_UPTO = 514 - 8
 BACKUP_TIME = 50
 PRE_BATCH_SIZE = 10
 PRE_TRAIN_LR = 0.001
-PRE_TRAIN_EPOCHS = 100
+# PRE_TRAIN_EPOCHS = 100
+PRE_TRAIN_EPOCHS = 10
 FRAC_VAL = 0.1
 C = 5.0
 BATCH_SIZE = 10
 TRAIN_LR = 0.001
-LAMBDA = 0.1
-TRAIN_EPOCHS = 500
+LAMBDA = 0.0
+# TRAIN_EPOCHS = 500
+TRAIN_EPOCHS = 50
 EVAL_SAMPLES = 100
 
 np.random.seed(SEED)
@@ -196,13 +240,14 @@ def generate_hmatrix():
 
 
 def jsd_loss(mu, logstd, hmatrix, train_means, train_std):
+    eps = 0.0001
     lhs_mu = (((mu * train_std + train_means) * hmatrix).sum(1) - train_means) / (
         train_std
     )
     lhs_var = (((th.exp(2.0 * logstd) * (train_std ** 2)) * hmatrix).sum(1)) / (
         train_std ** 2
     )
-    ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var))
+    ans = th.nan_to_num(jsd_norm(mu, lhs_mu, (2.0 * logstd).exp(), lhs_var+eps))
     return ans.mean()
 
 
@@ -247,8 +292,8 @@ def train_epoch():
             pdb.set_trace()
         loss.backward()
         losses.append(loss.detach().cpu().item())
-        print(f"Loss1: {loss1.detach().cpu().item()}")
-        print(f"Loss2: {loss2.detach().cpu().item()}")
+#         print(f"Loss1: {loss1.detach().cpu().item()}")
+#         print(f"Loss2: {loss2.detach().cpu().item()}")
         means.append(mean_sample.detach().cpu().numpy())
         stds.append(logstd_sample.detach().cpu().numpy())
         gts.append(y.detach().cpu().numpy())
@@ -326,3 +371,13 @@ rmse = np.sqrt(np.mean((ground_truth - mean_preds) ** 2))
 print(f"RMSE: {rmse}")
 crps = ps.crps_ensemble(ground_truth, np.moveaxis(preds, [1, 2, 0], [0, 1, 2])).mean()
 print(f"CRPS: {crps}")
+
+
+quantile_preds = np.quantile(preds, q=QUANTILES, axis=0)
+print("quantile_preds shape:", quantile_preds.shape)
+reshaped_preds = np.transpose(quantile_preds, (1, 2, 0)) #reshape into n_series, horizon, quantiles
+crps_all_levels = get_hierarchical_crps(Y=ground_truth, Y_hat=reshaped_preds, q_to_pred=QUANTILES)
+msse_all_levels = get_hierarchical_msse(Y=ground_truth, Y_hat=mean_preds, Y_train=train_data_raw)
+
+print(f"CRPS ALL LEVELS: {crps_all_levels}")
+print(f"MSSE ALL LEVELS: {msse_all_levels}")
